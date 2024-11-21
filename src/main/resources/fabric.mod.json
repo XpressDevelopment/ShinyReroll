@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "shinyreroll",
+  "version": "${version}",
+  "name": "ShinyReroll",
+  "description": "Adds a way to turn in your shinies and roll for a new one",
+  "authors": [
+    "GuitarXpress"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.xpressdev.shinyreroll.ShinyReroll"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.2",
+    "fabric": "*",
+    "minecraft": "1.21.1",
+    "cobblemon": ">=1.6.0+1.21.1"
+  }
+}
