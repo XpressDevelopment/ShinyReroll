@@ -34,7 +34,7 @@ object RerollManager {
     fun init(player: ServerPlayerEntity) {
         shownItemMap[player.uuid] = shownItemList.toMutableList()
         calculateOutcome(player)
-        startRolling(player, 200, 1.0f)
+        startRolling(player, Random.nextInt(100, 201), Random.nextDouble(0.6, 1.0).toFloat())
         playersToRemove.remove(player)
     }
 
@@ -64,7 +64,7 @@ object RerollManager {
             if (state.elapsedTicks >= state.currentDelay && state.remainingTime > 0) {
                 doRoll(player)
                 state.elapsedTicks = 0
-                state.currentDelay += Random.nextFloat() * (1f - 0.7f) + 0.7f
+                state.currentDelay += Random.nextDouble(0.6, 1.0).toFloat()
             } else {
                 state.elapsedTicks++
             }
@@ -90,9 +90,12 @@ object RerollManager {
     private fun handleWinOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
         val middleItem = shownItemMap[player.uuid]!![3].item
         if (middleItem != CobblemonItems.MASTER_BALL.defaultStack.item) {
+            /* // .indexOf doesnt actually work correctly, so I just set the remaining time to 15 ticks and let it loop
+               // until the masterball is in the middle
             val index = shownItemMap[player.uuid]!!.indexOf(CobblemonItems.MASTER_BALL.defaultStack)
             val distance = if (index < 3) 3 - index else 3 + index
-            state.remainingTime = distance * 20
+            */
+            state.remainingTime = 15
         } else {
             shownItemMap.remove(player.uuid)
             playersToRemove.add(player)
@@ -102,6 +105,7 @@ object RerollManager {
             if (pokemon == null) {
                 player.sendMessage(MMUtils.parseText("<red>One or more of your pokemon was not shiny."))
             } else {
+                RollingScreenGui.openGui(player, pokemon)
                 player.sendMessage(MMUtils.parseText("<gold>You've received a <yellow>Shiny ${pokemon.species.name}<gold>!"))
             }
         }
@@ -110,7 +114,7 @@ object RerollManager {
     private fun handleLossOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
         if (shownItemMap[player.uuid]!![3].item == CobblemonItems.MASTER_BALL.defaultStack.item) {
             // doRoll(player)
-            state.remainingTime = 30
+            state.remainingTime = 20
             return
         }
 

@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.party
 import com.cobblemon.mod.common.util.pc
 import net.minecraft.server.network.ServerPlayerEntity
+import net.xpressdev.shinyreroll.utils.ServerUtils
 import java.util.UUID
 
 object PokemonSelectionManager {
@@ -60,7 +61,9 @@ object PokemonSelectionManager {
         val pc = player.pc()
 
         selectedPartyPokemon[player.uuid]?.forEach { slot ->
-            selectedPokemon.add(party.get(slot)!!)
+            party.get(slot)?.let {
+                selectedPokemon.add(it)
+            }
         }
 
         selectedPcPokemon[player.uuid]?.forEach { position ->

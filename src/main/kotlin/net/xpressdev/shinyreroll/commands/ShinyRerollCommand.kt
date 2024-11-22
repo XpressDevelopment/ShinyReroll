@@ -10,6 +10,8 @@ import net.xpressdev.shinyreroll.ShinyReroll
 import net.xpressdev.shinyreroll.guis.PartyPcSelectGui
 import net.xpressdev.shinyreroll.managers.PermissionManager
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.ServerUtils
 
 class ShinyRerollCommand {
 
@@ -32,6 +34,8 @@ class ShinyRerollCommand {
 
     private fun reloadConfig(): Command<ServerCommandSource> {
         return Command { ctx ->
+            ShinyReroll.config.loadConfig()
+            ctx.source.sendFeedback({ MMUtils.parseText("<green>Config reloaded!") }, true)
             1
         }
     }
@@ -39,7 +43,6 @@ class ShinyRerollCommand {
     private fun openReroll(): Command<ServerCommandSource> {
         return Command { ctx ->
             if (ctx.source.player == null) return@Command 1
-
             PokemonSelectionManager.init(ctx.source.player!!)
             PartyPcSelectGui.openGui(ctx.source.player!!)
             1
@@ -48,6 +51,17 @@ class ShinyRerollCommand {
 
     private fun openRerollOther(): Command<ServerCommandSource> {
         return Command { ctx ->
+
+            val playerName = StringArgumentType.getString(ctx, "player")
+            val player = ServerUtils.getPlayerByName(playerName)
+
+            if (player == null) {
+                ctx.source.sendFeedback({ MMUtils.parseText("<red>Player not found!") }, false)
+                return@Command 1
+            }
+
+            PokemonSelectionManager.init(player)
+            PartyPcSelectGui.openGui(player)
             1
         }
     }

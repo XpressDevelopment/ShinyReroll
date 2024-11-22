@@ -1,6 +1,7 @@
 package net.xpressdev.shinyreroll.guis
 
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.party
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
@@ -12,6 +13,7 @@ import net.xpressdev.shinyreroll.ShinyReroll
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
 import net.xpressdev.shinyreroll.utils.MMUtils
 import net.xpressdev.shinyreroll.utils.PokemonUtils
+import net.xpressdev.shinyreroll.utils.ServerUtils
 
 object PartySelectGui {
 
@@ -41,8 +43,8 @@ object PartySelectGui {
                 .build()
         )
 
-        val partySlots = listOf(14, 15, 16, 23, 24, 25)
-        partySlots.forEach { slot ->
+        val partyGuiSlots = listOf(14, 15, 16, 23, 24, 25)
+        partyGuiSlots.forEach { slot ->
             gui.setSlot(
                 slot,
                 GuiElementBuilder.from(LIGHT_GRAY_STAINED_GLASS_PANE.defaultStack)
@@ -53,35 +55,39 @@ object PartySelectGui {
         }
 
         val party = player.party()
-        party.forEachIndexed { index, pokemon ->
-            val pokemonElement =
-                if (pokemon.shiny)
-                    GuiElementBuilder.from(
-                        if (PokemonSelectionManager.isPartyPokemonSelected(player, index))
-                            PokemonUtils.getSelectedPokemonItem(pokemon)
-                        else
-                            PokemonUtils.getPokemonItem(pokemon)
-                    )
-                else
-                     GuiElementBuilder.from(CobblemonItems.CHERISH_BALL.defaultStack)
-                        .setName(MMUtils.parseText("<red>Not a Shiny Pokemon"))
-                         .hideDefaultTooltip()
+        val partySlots = listOf(0, 1, 2, 3, 4, 5)
+        partySlots.forEach {
+            val pokemon = party.get(it)
+            if (pokemon != null) {
+                val pokemonElement =
+                    if (pokemon.shiny)
+                        GuiElementBuilder.from(
+                            if (PokemonSelectionManager.isPartyPokemonSelected(player, it))
+                                PokemonUtils.getSelectedPokemonItem(pokemon)
+                            else
+                                PokemonUtils.getPokemonItem(pokemon)
+                        )
+                    else
+                        GuiElementBuilder.from(CobblemonItems.CHERISH_BALL.defaultStack)
+                            .setName(MMUtils.parseText("<red>Not a Shiny Pokemon"))
+                            .hideDefaultTooltip()
 
-            gui.setSlot(
-                partySlots[index],
-                pokemonElement
-                    .setCallback { _, _, _ ->
-                        if (!pokemon.shiny)
-                            return@setCallback
+                gui.setSlot(
+                    partyGuiSlots[it],
+                    pokemonElement
+                        .setCallback { _, _, _ ->
+                            if (!pokemon.shiny)
+                                return@setCallback
 
-                        if (PokemonSelectionManager.isPartyPokemonSelected(player, index))
-                            PokemonSelectionManager.deselectPartyPokemon(player, index)
-                        else
-                            PokemonSelectionManager.selectPartyPokemon(player, index)
-                        openGui(player)
-                    }
-                    .build()
-            )
+                            if (PokemonSelectionManager.isPartyPokemonSelected(player, it))
+                                PokemonSelectionManager.deselectPartyPokemon(player, it)
+                            else
+                                PokemonSelectionManager.selectPartyPokemon(player, it)
+                            openGui(player)
+                        }
+                        .build()
+                )
+            }
         }
 
         gui.open()
