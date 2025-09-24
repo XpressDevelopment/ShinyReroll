@@ -12,10 +12,6 @@ repositories {
     maven("https://maven.impactdev.net/repository/development/")
 
     maven(url = "https://maven.nucleoid.xyz/") { name = "Nucleoid" } // Server GUI
-
-    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "sonatype-oss-snapshots" // For MiniMessage snapshot builds
-    }
 }
 
 dependencies {
