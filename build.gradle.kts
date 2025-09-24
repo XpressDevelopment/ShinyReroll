@@ -32,7 +32,6 @@ dependencies {
 
     // MiniMessage
     modImplementation(include("net.kyori:adventure-platform-fabric:${property("adventure_platform_version")}")!!)
-    modImplementation(include("net.kyori:adventure-text-minimessage:${property("adventure_text_version")}")!!)
 
     // Server GUI
     modImplementation("eu.pb4:sgui:${property("sgui_version")}")
