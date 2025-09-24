@@ -12,10 +12,6 @@ repositories {
     maven("https://maven.impactdev.net/repository/development/")
 
     maven(url = "https://maven.nucleoid.xyz/") { name = "Nucleoid" } // Server GUI
-
-    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "sonatype-oss-snapshots" // For MiniMessage snapshot builds
-    }
 }
 
 dependencies {
@@ -32,7 +28,6 @@ dependencies {
 
     // MiniMessage
     modImplementation(include("net.kyori:adventure-platform-fabric:${property("adventure_platform_version")}")!!)
-    modImplementation(include("net.kyori:adventure-text-minimessage:${property("adventure_text_version")}")!!)
 
     // Server GUI
     modImplementation("eu.pb4:sgui:${property("sgui_version")}")
