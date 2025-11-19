@@ -18,6 +18,6 @@
     "fabricloader": ">=0.16.2",
     "fabric": "*",
     "minecraft": "1.21.1",
-    "cobblemon": ">=1.6.0+1.21.1"
+    "cobblemon": ">=1.7.0+1.21.1"
   }
 }

@@ -20,7 +20,7 @@ object PermissionManager {
     fun canUseCommand(source: ServerCommandSource): Boolean {
         return source.hasPermissionLevel(2) || (ShinyReroll.luckPerms != null && Permissions.check(
             source,
-            "shinyreroll.use",
+            "shinyreroll.self",
             2
         ))
     }
@@ -28,7 +28,7 @@ object PermissionManager {
     fun canUseOtherCommand(source: ServerCommandSource): Boolean {
         return source.hasPermissionLevel(2) || (ShinyReroll.luckPerms != null && Permissions.check(
             source,
-            "shinyreroll.use.other",
+            "shinyreroll.other",
             2
         ))
     }
