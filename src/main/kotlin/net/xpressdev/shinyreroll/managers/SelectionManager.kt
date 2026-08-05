@@ -23,6 +23,8 @@ object SelectionManager {
         return selections[player.uuid]?.contains(pokemon.uuid) ?: false
     }
 
+    fun selectionSize(player: ServerPlayerEntity): Int = selections[player.uuid]?.size ?: 0
+
     fun resolve(player: ServerPlayerEntity): List<Pokemon> {
         val ids = selections[player.uuid] ?: return emptyList()
 

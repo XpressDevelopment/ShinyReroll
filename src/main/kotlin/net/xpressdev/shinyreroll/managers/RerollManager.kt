@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.RollingScreenGui
 import net.xpressdev.shinyreroll.utils.GeneralUtils
@@ -98,18 +99,25 @@ object RerollManager {
     private fun finish(player: ServerPlayerEntity, uuid: UUID, state: RollState) {
         rolls.remove(uuid)
 
-        if (state.win) {
-            player.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.NEUTRAL, 1.0f, 1.0f)
+        if (!GeneralUtils.validate(player)) {
+            Messages.send(player, Message.ROLL_VALIDATION_FAILED)
+            return
+        }
 
+        if (state.win) {
             val pokemon = GeneralUtils.rollNewShiny(player)
-            if (pokemon == null) {
-                Messages.send(player, Message.ROLL_NOT_SHINY)
-            } else {
-                RollingScreenGui.openGui(player, pokemon)
-                Messages.send(player, Message.ROLL_WIN, "species" to pokemon.species.name)
+            when {
+                pokemon != null -> {
+                    player.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.NEUTRAL, 1.0f, 1.0f)
+                    RollingScreenGui.openGui(player, pokemon)
+                    Messages.send(player, Message.ROLL_WIN, "species" to pokemon.species.name)
+                }
+                ConfigStore.eligibleSpecies.isEmpty() -> Messages.send(player, Message.ROLL_NO_ELIGIBLE_SPECIES)
+                else -> Messages.send(player, Message.ROLL_NO_SPACE)
             }
         } else {
             GeneralUtils.removeSelectedPokemonFromPlayer(player)
+            SelectionManager.clear(player)
             Messages.send(player, Message.ROLL_LOSS)
             player.playSoundToPlayer(SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 1.0f, 0.1f)
         }

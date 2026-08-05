@@ -1,5 +1,8 @@
 package net.xpressdev.shinyreroll.config
 
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels
+import com.cobblemon.mod.common.pokemon.Species
 import java.io.File
 import net.fabricmc.loader.api.FabricLoader
 import net.xpressdev.shinyreroll.LOGGER
@@ -24,6 +27,20 @@ object ConfigStore {
     val config: ShinyRerollConfig get() = configHandle.value
 
     val lang: Lang get() = langHandle.value
+
+    val eligibleSpecies: List<Species>
+        get() {
+            val allowed = config.allowed
+
+            return PokemonSpecies.species.filter { species ->
+                (allowed.unimplemented || species.implemented) &&
+                    (allowed.legendary || !species.labels.contains(CobblemonPokemonLabels.LEGENDARY)) &&
+                    (allowed.legendary || !species.labels.contains(CobblemonPokemonLabels.RESTRICTED)) &&
+                    (allowed.mythical || !species.labels.contains(CobblemonPokemonLabels.MYTHICAL)) &&
+                    (allowed.ultraBeast || !species.labels.contains(CobblemonPokemonLabels.ULTRA_BEAST)) &&
+                    (allowed.paradox || !species.labels.contains(CobblemonPokemonLabels.PARADOX))
+            }
+        }
 
     fun load() {
         if (!directory.isDirectory && !directory.mkdirs()) {

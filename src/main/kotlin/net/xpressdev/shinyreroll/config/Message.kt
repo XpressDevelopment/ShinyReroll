@@ -38,7 +38,15 @@ enum class Message(override val key: String, override val default: String) : Xpr
     GUI_INFO_MAX_CHANCE("gui.info.max_chance", "<gray>Max Shiny Chance: <gold>{max}%"),
     GUI_NOT_SHINY("gui.not_shiny", "<red>Not a Shiny Pokemon"),
 
-    ROLL_NOT_SHINY("roll.not_shiny", "<red>One or more of your pokemon was not shiny."),
+    ROLL_VALIDATION_FAILED(
+        "roll.validation_failed",
+        "<red>Your selection changed since you confirmed — nothing was rerolled.",
+    ),
+    ROLL_NO_ELIGIBLE_SPECIES(
+        "roll.no_eligible_species",
+        "<red>No eligible Pokémon are available with the current settings.",
+    ),
+    ROLL_NO_SPACE("roll.no_space", "<red>Your party and PC are both full — nothing was consumed."),
     ROLL_WIN("roll.win", "<gold>You've received a <yellow>Shiny {species}<gold>!"),
     ROLL_LOSS("roll.loss", "<red>Womp Womp! Better luck next time!"),
 
