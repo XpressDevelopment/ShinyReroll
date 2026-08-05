@@ -9,10 +9,9 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
 import kotlin.math.floor
 
@@ -21,14 +20,14 @@ object PcSelectGui {
     fun openGui(player: ServerPlayerEntity, boxNum: Int) {
         val gui = SimpleGui(ScreenHandlerType.GENERIC_9X5, player, false)
 
-        gui.title = Text.literal("Select Pokemon - Box ${boxNum + 1}")
+        gui.title = Messages.text(Message.GUI_PC_SELECT_TITLE, "box" to "${boxNum + 1}")
 
         for (i in 0 until gui.size) {
             if (i in 0..5 || i in 9..14 || i in 18..23 || i in 27..32 || i in 36..41) {
                 gui.setSlot(
                     i,
                     GuiElementBuilder.from(GRAY_STAINED_GLASS_PANE.defaultStack)
-                        .setName(MMUtils.parseText("Empty"))
+                        .setName(Messages.text(Message.GUI_EMPTY))
                         .build()
                 )
             } else {
@@ -53,7 +52,7 @@ object PcSelectGui {
                     GuiElementBuilder.from(PokemonUtils.getPokemonItem(pokemon))
 
                 item = if (pokemon.shiny) item else GuiElementBuilder.from(CobblemonItems.CHERISH_BALL.defaultStack)
-                    .setName(MMUtils.parseText("<red>Not a Shiny Pokemon"))
+                    .setName(Messages.text(Message.GUI_NOT_SHINY))
 
                 gui.setSlot(
                     (row * 9).toInt() + index,
@@ -79,7 +78,7 @@ object PcSelectGui {
                 null,
                 null
             )
-                .setName(MMUtils.parseText("Previous"))
+                .setName(Messages.text(Message.GUI_PREVIOUS))
                 .setCallback { _, _, _ ->
                     if (boxNum > 0)
                         openGui(player, boxNum - 1)
@@ -95,7 +94,7 @@ object PcSelectGui {
                 null,
                 null
             )
-                .setName(MMUtils.parseText("Next"))
+                .setName(Messages.text(Message.GUI_NEXT))
                 .setCallback { _, _, _ ->
                     if (boxNum < player.pc().boxes.size - 1)
                         openGui(player, boxNum + 1)
@@ -111,7 +110,7 @@ object PcSelectGui {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
                 null,
                 null
-            ).setName(MMUtils.parseText("<green>Confirm"))
+            ).setName(Messages.text(Message.GUI_CONFIRM))
                 .setCallback { _, _, _ ->
                     PartyPcSelectGui.openGui(player)
                 }

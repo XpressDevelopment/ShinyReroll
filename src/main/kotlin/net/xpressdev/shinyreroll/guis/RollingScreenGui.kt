@@ -6,15 +6,16 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.item.Items
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.managers.RerollManager
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
 
 object RollingScreenGui {
 
     fun openGui(player: ServerPlayerEntity, reward: Pokemon? = null) {
         val gui = SimpleGui(ScreenHandlerType.GENERIC_9X3, player, false)
-        gui.setTitle(MMUtils.parseText("Shiny Reroll"))
+        gui.setTitle(Messages.text(Message.GUI_ROLLING_TITLE))
 
         for (i in 0 until gui.size) {
             gui.setSlot(

@@ -5,9 +5,10 @@ import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.RollingScreenGui
 import net.xpressdev.shinyreroll.utils.GeneralUtils
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.ServerUtils
 import java.util.UUID
 import kotlin.random.Random
@@ -90,11 +91,6 @@ object RerollManager {
     private fun handleWinOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
         val middleItem = shownItemMap[player.uuid]!![3].item
         if (middleItem != CobblemonItems.MASTER_BALL.defaultStack.item) {
-            /* // .indexOf doesnt actually work correctly, so I just set the remaining time to 15 ticks and let it loop
-               // until the masterball is in the middle
-            val index = shownItemMap[player.uuid]!!.indexOf(CobblemonItems.MASTER_BALL.defaultStack)
-            val distance = if (index < 3) 3 - index else 3 + index
-            */
             state.remainingTime = 15
         } else {
             shownItemMap.remove(player.uuid)
@@ -103,10 +99,10 @@ object RerollManager {
 
             val pokemon = GeneralUtils.rollNewShiny(player)
             if (pokemon == null) {
-                player.sendMessage(MMUtils.parseText("<red>One or more of your pokemon was not shiny."))
+                Messages.send(player, Message.ROLL_NOT_SHINY)
             } else {
                 RollingScreenGui.openGui(player, pokemon)
-                player.sendMessage(MMUtils.parseText("<gold>You've received a <yellow>Shiny ${pokemon.species.name}<gold>!"))
+                Messages.send(player, Message.ROLL_WIN, "species" to pokemon.species.name)
             }
         }
     }
@@ -119,7 +115,7 @@ object RerollManager {
         }
 
         GeneralUtils.removeSelectedPokemonFromPlayer(player)
-        player.sendMessage(MMUtils.parseText("<red>Womp Womp! Better luck next time!"))
+        Messages.send(player, Message.ROLL_LOSS)
         player.playSoundToPlayer(SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 1.0f, 0.1f)
 
         shownItemMap.remove(player.uuid)

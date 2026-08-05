@@ -5,13 +5,13 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.party
 import com.cobblemon.mod.common.util.pc
 import net.minecraft.server.network.ServerPlayerEntity
-import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
 
 object GeneralUtils {
 
     fun calculateCurrentShinyChance(player: ServerPlayerEntity): Double {
-        return PokemonSelectionManager.getSelectedPokemon(player).size * ShinyReroll.chancePerPokemon
+        return PokemonSelectionManager.getSelectedPokemon(player).size * ConfigStore.config.reroll.chanceFraction
     }
 
     fun formatShinyChance(player: ServerPlayerEntity): String {
@@ -19,7 +19,7 @@ object GeneralUtils {
     }
 
     private fun maxShinyChance(): Double {
-        return ShinyReroll.maxPokemonSelected * ShinyReroll.chancePerPokemon
+        return ConfigStore.config.reroll.maxPokemonSelected * ConfigStore.config.reroll.chanceFraction
     }
 
     fun formatMaxShinyChance(): String {
@@ -27,7 +27,7 @@ object GeneralUtils {
     }
 
     fun isOverLimit(player: ServerPlayerEntity): Boolean {
-        return PokemonSelectionManager.getSelectedPokemon(player).size > ShinyReroll.maxPokemonSelected
+        return PokemonSelectionManager.getSelectedPokemon(player).size > ConfigStore.config.reroll.maxPokemonSelected
     }
 
     fun getRandomPokemon(): Pokemon {
@@ -42,16 +42,18 @@ object GeneralUtils {
             "chienpao", "chien-pao", "ting-lu", "tinglu", "chi-yu", "chiyu"
         )
 
+        val allowed = ConfigStore.config.allowed
+
         var pokemon: Pokemon
         do {
             pokemon = PokemonSpecies.random().create(1)
         } while (
-            (pokemon.isLegendary() && !ShinyReroll.allowLegendary) ||
-            (pokemon.isMythical() && !ShinyReroll.allowMythical) ||
-            (pokemon.isUltraBeast() && !ShinyReroll.allowUltraBeast) ||
-            (paradox.contains(pokemon.species.name.lowercase()) && !ShinyReroll.allowParadox) ||
-            (unclassified.contains(pokemon.species.name.lowercase()) && !ShinyReroll.allowLegendary) ||
-            (!pokemon.species.implemented && !ShinyReroll.allowUnimplemented)
+            (pokemon.isLegendary() && !allowed.legendary) ||
+            (pokemon.isMythical() && !allowed.mythical) ||
+            (pokemon.isUltraBeast() && !allowed.ultraBeast) ||
+            (paradox.contains(pokemon.species.name.lowercase()) && !allowed.paradox) ||
+            (unclassified.contains(pokemon.species.name.lowercase()) && !allowed.legendary) ||
+            (!pokemon.species.implemented && !allowed.unimplemented)
         )
 
         pokemon.shiny = true

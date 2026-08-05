@@ -6,11 +6,12 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.server.command.CommandManager
 
 import net.minecraft.server.command.ServerCommandSource
-import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.ConfigStore
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.PartyPcSelectGui
 import net.xpressdev.shinyreroll.managers.PermissionManager
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.ServerUtils
 
 class ShinyRerollCommand {
@@ -34,8 +35,8 @@ class ShinyRerollCommand {
 
     private fun reloadConfig(): Command<ServerCommandSource> {
         return Command { ctx ->
-            ShinyReroll.config.loadConfig()
-            ctx.source.sendFeedback({ MMUtils.parseText("<green>Config reloaded!") }, true)
+            ConfigStore.load()
+            Messages.feedback(ctx.source, Message.COMMAND_CONFIG_RELOADED)
             1
         }
     }
@@ -56,7 +57,7 @@ class ShinyRerollCommand {
             val player = ServerUtils.getPlayerByName(playerName)
 
             if (player == null) {
-                ctx.source.sendFeedback({ MMUtils.parseText("<red>Player not found!") }, false)
+                Messages.error(ctx.source, Message.COMMAND_PLAYER_NOT_FOUND)
                 return@Command 1
             }
 

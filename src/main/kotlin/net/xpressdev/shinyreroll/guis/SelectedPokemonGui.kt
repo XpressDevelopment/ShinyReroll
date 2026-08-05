@@ -6,11 +6,11 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.ConfigStore
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
 import net.xpressdev.shinyreroll.utils.GeneralUtils
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
 import kotlin.math.floor
 
@@ -19,14 +19,14 @@ object SelectedPokemonGui {
     fun openGui(player: ServerPlayerEntity, sectionNum: Int) {
         val gui = SimpleGui(ScreenHandlerType.GENERIC_9X5, player, false)
 
-        gui.title = Text.literal("Selected Pokemon - ${sectionNum + 1}")
+        gui.title = Messages.text(Message.GUI_SELECTED_TITLE, "page" to "${sectionNum + 1}")
 
         for (i in 0 until gui.size) {
             if (i in 0..5 || i in 9..14 || i in 18..23 || i in 27..32 || i in 36..41) {
                 gui.setSlot(
                     i,
                     GuiElementBuilder.from(GRAY_STAINED_GLASS_PANE.defaultStack)
-                        .setName(Text.literal("Empty"))
+                        .setName(Messages.text(Message.GUI_EMPTY))
                         .build()
                 )
             } else {
@@ -64,7 +64,7 @@ object SelectedPokemonGui {
                 null,
                 null
             )
-                .setName(MMUtils.parseText("Previous"))
+                .setName(Messages.text(Message.GUI_PREVIOUS))
                 .setCallback { _, _, _ ->
                     if (sectionNum > 0)
                         openGui(player, sectionNum - 1)
@@ -80,7 +80,7 @@ object SelectedPokemonGui {
                 null,
                 null
             )
-                .setName(MMUtils.parseText("Next"))
+                .setName(Messages.text(Message.GUI_NEXT))
                 .setCallback { _, _, _ ->
                     if (sectionNum < floor(selectedPokemon.size * 1.0 / 30).toInt())
                         openGui(player, sectionNum + 1)
@@ -97,12 +97,12 @@ object SelectedPokemonGui {
                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
                     null,
                     null
-                ).setName(MMUtils.parseText("<green>Confirm"))
+                ).setName(Messages.text(Message.GUI_CONFIRM))
                     .setCallback { _, _, _ ->
                         if (PokemonSelectionManager.getSelectedPokemon(player).size > 0)
                             ConfirmationGui.openGui(player)
                         else
-                            player.sendMessage(MMUtils.parseText("<red>You must select at least one Pokemon"))
+                            player.sendMessage(Messages.text(Message.GUI_SELECTED_MUST_SELECT_ONE))
                     }
                     .build()
             )
@@ -113,8 +113,13 @@ object SelectedPokemonGui {
                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmYwNGIyOTJhZDk0OGMwZTlmMGQzM2M2NGYxMzFmMzJlM2M1MTg4NDU2Zjc3ODc0NWEwMGYyYjRiNWFkMDM1OSJ9fX0=",
                     null,
                     null
-                ).setName(MMUtils.parseText("<red>Too many Pokemon selected"))
-                    .addLoreLine(MMUtils.parseText("<gray>You can only select up to ${ShinyReroll.maxPokemonSelected} Pokemon"))
+                ).setName(Messages.text(Message.GUI_SELECTED_TOO_MANY_NAME))
+                    .addLoreLine(
+                        Messages.text(
+                            Message.GUI_SELECTED_TOO_MANY_LORE,
+                            "max" to "${ConfigStore.config.reroll.maxPokemonSelected}",
+                        ),
+                    )
                     .build()
             )
 
@@ -124,7 +129,7 @@ object SelectedPokemonGui {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjc1NDgzNjJhMjRjMGZhODQ1M2U0ZDkzZTY4YzU5NjlkZGJkZTU3YmY2NjY2YzAzMTljMWVkMWU4NGQ4OTA2NSJ9fX0=",
                 null,
                 null
-            ).setName(MMUtils.parseText("<dark_red>Cancel"))
+            ).setName(Messages.text(Message.GUI_CANCEL))
                 .setCallback { _, _, _ ->
                     PartyPcSelectGui.openGui(player)
                 }
@@ -137,9 +142,13 @@ object SelectedPokemonGui {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDAxYWZlOTczYzU0ODJmZGM3MWU2YWExMDY5ODgzM2M3OWM0MzdmMjEzMDhlYTlhMWEwOTU3NDZlYzI3NGEwZiJ9fX0=",
                 null,
                 null
-            ).setName(MMUtils.parseText("<gold>Info"))
-                .addLoreLine(MMUtils.parseText("<gray>Current Shiny Chance: <gold>${GeneralUtils.formatShinyChance(player)}%"))
-                .addLoreLine(MMUtils.parseText("<gray>Max Shiny Chance: <gold>${GeneralUtils.formatMaxShinyChance()}%"))
+            ).setName(Messages.text(Message.GUI_INFO_NAME))
+                .addLoreLine(
+                    Messages.text(Message.GUI_INFO_CURRENT_CHANCE, "chance" to GeneralUtils.formatShinyChance(player)),
+                )
+                .addLoreLine(
+                    Messages.text(Message.GUI_INFO_MAX_CHANCE, "max" to GeneralUtils.formatMaxShinyChance()),
+                )
                 .build()
         )
 

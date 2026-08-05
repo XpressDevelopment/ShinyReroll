@@ -9,10 +9,8 @@ import net.luckperms.api.LuckPerms
 import net.luckperms.api.LuckPermsProvider
 import net.minecraft.server.MinecraftServer
 import net.xpressdev.shinyreroll.commands.ShinyRerollCommand
+import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.managers.RerollManager
-import net.xpressdev.shinyreroll.utils.Config
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class ShinyReroll : ModInitializer {
 
@@ -25,8 +23,6 @@ class ShinyReroll : ModInitializer {
 
         var adventure: FabricServerAudiences? = null
 
-        var LOGGER: Logger = LoggerFactory.getLogger("ShinyReroll")
-
         var hasEconomy = false
 
         private const val COOLDOWN: Int = 1
@@ -34,21 +30,11 @@ class ShinyReroll : ModInitializer {
         val counter: Int
             get() = _counter
         var onCooldown: Boolean = false
-
-        var maxPokemonSelected: Int = 10
-        var chancePerPokemon: Double = 0.1
-        var allowLegendary: Boolean = false
-        var allowMythical: Boolean = false
-        var allowUltraBeast: Boolean = false
-        var allowParadox: Boolean = false
-        var allowUnimplemented: Boolean = false
-
-        private val _config = Config()
-        val config: Config
-            get() = _config
     }
 
     override fun onInitialize() {
+        ConfigStore.load()
+
         ServerLifecycleEvents.SERVER_STARTED.register { server: MinecraftServer ->
             _serverInstance = server
 

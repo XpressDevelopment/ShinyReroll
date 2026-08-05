@@ -8,18 +8,16 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.xpressdev.shinyreroll.ShinyReroll
+import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
-import net.xpressdev.shinyreroll.utils.MMUtils
+import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
-import net.xpressdev.shinyreroll.utils.ServerUtils
 
 object PartySelectGui {
 
     fun openGui(player: ServerPlayerEntity) {
         val gui = SimpleGui(ScreenHandlerType.GENERIC_9X4, player, false)
-        gui.setTitle(Text.literal("Select Pokemon"))
+        gui.setTitle(Messages.text(Message.GUI_PARTY_SELECT_TITLE))
 
         for (i in 0 until gui.size) {
             gui.setSlot(
@@ -36,7 +34,7 @@ object PartySelectGui {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
                 null,
                 null
-            ).setName(MMUtils.parseText("<green>Confirm"))
+            ).setName(Messages.text(Message.GUI_CONFIRM))
                 .setCallback { _, _, _ ->
                     PartyPcSelectGui.openGui(player)
                 }
@@ -49,7 +47,7 @@ object PartySelectGui {
                 slot,
                 GuiElementBuilder.from(LIGHT_GRAY_STAINED_GLASS_PANE.defaultStack)
                     .hideDefaultTooltip()
-                    .setName(Text.literal("Empty Slot"))
+                    .setName(Messages.text(Message.GUI_PARTY_SELECT_EMPTY_SLOT))
                     .build()
             )
         }
@@ -69,7 +67,7 @@ object PartySelectGui {
                         )
                     else
                         GuiElementBuilder.from(CobblemonItems.CHERISH_BALL.defaultStack)
-                            .setName(MMUtils.parseText("<red>Not a Shiny Pokemon"))
+                            .setName(Messages.text(Message.GUI_NOT_SHINY))
                             .hideDefaultTooltip()
 
                 gui.setSlot(
