@@ -1,30 +1,27 @@
 package net.xpressdev.shinyreroll.managers
 
 import com.cobblemon.mod.common.CobblemonItems
+import java.util.UUID
+import kotlin.random.Random
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.xpressdev.shinyreroll.ShinyReroll
 import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.RollingScreenGui
 import net.xpressdev.shinyreroll.utils.GeneralUtils
 import net.xpressdev.shinyreroll.utils.Messages
-import net.xpressdev.shinyreroll.utils.ServerUtils
-import java.util.UUID
-import kotlin.random.Random
 
 object RerollManager {
 
-    data class PlayerRollState(
-        var remainingTime: Int,
-        var currentDelay: Float,
-        var elapsedTicks: Int = 0
+    data class RollState(
+        val items: MutableList<ItemStack>,
+        val win: Boolean,
+        var rollsLeft: Int,
+        var elapsedTicks: Int = 0,
+        var delay: Float,
     )
-
-    val shownItemMap = mutableMapOf<UUID, MutableList<ItemStack>>()
-    val playerRollStates = mutableMapOf<ServerPlayerEntity, PlayerRollState>()
-    val playerOutcomes = mutableMapOf<ServerPlayerEntity, Boolean>()
-    val playersToRemove = mutableListOf<ServerPlayerEntity>()
 
     val shownItemList = listOf(
         CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack,
@@ -32,69 +29,76 @@ object RerollManager {
         CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack
     )
 
-    fun init(player: ServerPlayerEntity) {
-        shownItemMap[player.uuid] = shownItemList.toMutableList()
-        calculateOutcome(player)
-        startRolling(player, Random.nextInt(100, 201), Random.nextDouble(0.6, 1.0).toFloat())
-        playersToRemove.remove(player)
-    }
+    private val rolls = mutableMapOf<UUID, RollState>()
 
-    private fun startRolling(player: ServerPlayerEntity, totalTime: Int, initialDelay: Float) {
-        playerRollStates[player] = PlayerRollState(
-            remainingTime = totalTime,
-            currentDelay = initialDelay
+    fun init(player: ServerPlayerEntity) {
+        val win = Math.random() <= GeneralUtils.calculateCurrentShinyChance(player)
+
+        rolls[player.uuid] = RollState(
+            items = shownItemList.toMutableList(),
+            win = win,
+            rollsLeft = rollCountFor(win),
+            delay = Random.nextDouble(0.6, 1.0).toFloat(),
         )
     }
 
-    private fun doRoll(player: ServerPlayerEntity) {
-        val list = shownItemMap[player.uuid] ?: return
+    fun clear(player: ServerPlayerEntity) {
+        rolls.remove(player.uuid)
+    }
 
-        player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.NEUTRAL, 0.5f, 1.0f)
+    fun isRolling(player: ServerPlayerEntity): Boolean = rolls.containsKey(player.uuid)
 
-        val item = list.removeFirst()
-        list.add(item)
+    fun itemsFor(player: ServerPlayerEntity): List<ItemStack> = rolls[player.uuid]?.items ?: shownItemList
 
-        shownItemMap[player.uuid] = list
-        RollingScreenGui.openGui(player)
+    private fun rollCountFor(win: Boolean): Int {
+        val period = shownItemList.size
+        return if (win) {
+            period * Random.nextInt(3, 7)
+        } else {
+            var count = Random.nextInt(15, 36)
+            if (count % period == 0) count++
+            count
+        }
     }
 
     fun updateRolls() {
-        playerRollStates.entries.forEach { (player, state) ->
-            state.remainingTime--
+        val server = ShinyReroll.serverInstance
 
-            if (state.elapsedTicks >= state.currentDelay && state.remainingTime > 0) {
-                doRoll(player)
+        rolls.entries.toList().forEach { (uuid, state) ->
+            val player = server.playerManager.getPlayer(uuid)
+            if (player == null) {
+                rolls.remove(uuid)
+                return@forEach
+            }
+
+            if (state.elapsedTicks >= state.delay && state.rollsLeft > 0) {
+                doRoll(player, state)
+                state.rollsLeft--
                 state.elapsedTicks = 0
-                state.currentDelay += Random.nextDouble(0.6, 1.0).toFloat()
+                state.delay += Random.nextDouble(0.6, 1.0).toFloat()
             } else {
                 state.elapsedTicks++
             }
 
-            if (state.remainingTime <= 0) {
-                handleOutcome(player, state)
+            if (state.rollsLeft <= 0) {
+                finish(player, uuid, state)
             }
         }
-
-        playersToRemove.forEach { player ->
-            playerOutcomes.remove(player)
-            playerRollStates.remove(player)
-        }
     }
 
-    private fun handleOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
-        if (calculateOutcome(player))
-            handleWinOutcome(player, state)
-        else
-            handleLossOutcome(player, state)
+    private fun doRoll(player: ServerPlayerEntity, state: RollState) {
+        player.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.NEUTRAL, 0.5f, 1.0f)
+
+        val item = state.items.removeFirst()
+        state.items.add(item)
+
+        RollingScreenGui.openGui(player)
     }
 
-    private fun handleWinOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
-        val middleItem = shownItemMap[player.uuid]!![3].item
-        if (middleItem != CobblemonItems.MASTER_BALL.defaultStack.item) {
-            state.remainingTime = 15
-        } else {
-            shownItemMap.remove(player.uuid)
-            playersToRemove.add(player)
+    private fun finish(player: ServerPlayerEntity, uuid: UUID, state: RollState) {
+        rolls.remove(uuid)
+
+        if (state.win) {
             player.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.NEUTRAL, 1.0f, 1.0f)
 
             val pokemon = GeneralUtils.rollNewShiny(player)
@@ -104,29 +108,10 @@ object RerollManager {
                 RollingScreenGui.openGui(player, pokemon)
                 Messages.send(player, Message.ROLL_WIN, "species" to pokemon.species.name)
             }
+        } else {
+            GeneralUtils.removeSelectedPokemonFromPlayer(player)
+            Messages.send(player, Message.ROLL_LOSS)
+            player.playSoundToPlayer(SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 1.0f, 0.1f)
         }
     }
-
-    private fun handleLossOutcome(player: ServerPlayerEntity, state: PlayerRollState) {
-        if (shownItemMap[player.uuid]!![3].item == CobblemonItems.MASTER_BALL.defaultStack.item) {
-            // doRoll(player)
-            state.remainingTime = 20
-            return
-        }
-
-        GeneralUtils.removeSelectedPokemonFromPlayer(player)
-        Messages.send(player, Message.ROLL_LOSS)
-        player.playSoundToPlayer(SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.NEUTRAL, 1.0f, 0.1f)
-
-        shownItemMap.remove(player.uuid)
-        playersToRemove.add(player)
-    }
-
-    private fun calculateOutcome(player: ServerPlayerEntity): Boolean {
-        if (!playerOutcomes.containsKey(player))
-            playerOutcomes[player] = Math.random() <= GeneralUtils.calculateCurrentShinyChance(player)
-        return playerOutcomes[player]!!
-    }
-
-
 }

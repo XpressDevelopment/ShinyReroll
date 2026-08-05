@@ -41,11 +41,9 @@ object RollingScreenGui {
         )
 
         val guiIndexes = (10 .. 16).toList()
-        val shownItemList =
-            if (RerollManager.shownItemMap.contains(player.uuid)) RerollManager.shownItemMap[player.uuid]
-            else RerollManager.shownItemList
+        val shownItemList = RerollManager.itemsFor(player)
 
-        for (i in shownItemList!!.indices) {
+        for (i in shownItemList.indices) {
             gui.setSlot(
                 guiIndexes[i],
                 GuiElementBuilder.from(shownItemList[i])

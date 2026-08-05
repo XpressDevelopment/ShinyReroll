@@ -10,6 +10,7 @@ import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.PartyPcSelectGui
 import net.xpressdev.shinyreroll.managers.PermissionManager
+import net.xpressdev.shinyreroll.managers.RerollManager
 import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.ServerUtils
@@ -43,9 +44,15 @@ class ShinyRerollCommand {
 
     private fun openReroll(): Command<ServerCommandSource> {
         return Command { ctx ->
-            if (ctx.source.player == null) return@Command 1
-            SelectionManager.clear(ctx.source.player!!)
-            PartyPcSelectGui.openGui(ctx.source.player!!)
+            val player = ctx.source.player ?: return@Command 1
+
+            if (RerollManager.isRolling(player)) {
+                Messages.error(ctx.source, Message.COMMAND_ROLL_IN_PROGRESS)
+                return@Command 1
+            }
+
+            SelectionManager.clear(player)
+            PartyPcSelectGui.openGui(player)
             1
         }
     }
@@ -58,6 +65,11 @@ class ShinyRerollCommand {
 
             if (player == null) {
                 Messages.error(ctx.source, Message.COMMAND_PLAYER_NOT_FOUND)
+                return@Command 1
+            }
+
+            if (RerollManager.isRolling(player)) {
+                Messages.error(ctx.source, Message.COMMAND_ROLL_IN_PROGRESS)
                 return@Command 1
             }
 

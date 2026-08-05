@@ -6,6 +6,7 @@ enum class Message(override val key: String, override val default: String) : Xpr
 
     COMMAND_CONFIG_RELOADED("command.config_reloaded", "<green>Config reloaded!"),
     COMMAND_PLAYER_NOT_FOUND("command.player_not_found", "<red>Player not found!"),
+    COMMAND_ROLL_IN_PROGRESS("command.roll_in_progress", "<red>You already have a reroll in progress!"),
 
     GUI_PARTY_PC_SELECT_TITLE("gui.party_pc_select.title", "Shiny Reroll"),
     GUI_PARTY_PC_SELECT_FROM_PARTY("gui.party_pc_select.from_party", "Select from Party"),

@@ -3,6 +3,7 @@ package net.xpressdev.shinyreroll
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.kyori.adventure.platform.fabric.FabricServerAudiences
 import net.luckperms.api.LuckPerms
@@ -11,6 +12,7 @@ import net.minecraft.server.MinecraftServer
 import net.xpressdev.shinyreroll.commands.ShinyRerollCommand
 import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.managers.RerollManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 
 class ShinyReroll : ModInitializer {
 
@@ -50,6 +52,11 @@ class ShinyReroll : ModInitializer {
                 hasEconomy = true
             else
                 LOGGER.warn("Economy service not found.")
+        }
+
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
+            RerollManager.clear(handler.player)
+            SelectionManager.clear(handler.player)
         }
 
         ServerTickEvents.START_SERVER_TICK.register {
