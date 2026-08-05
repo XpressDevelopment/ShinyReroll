@@ -11,9 +11,13 @@ group = property("maven_group")!!
 version = property("mod_version")!!
 
 repositories {
+    mavenCentral()
+
     maven("https://maven.impactdev.net/repository/development/")
 
     maven(url = "https://maven.nucleoid.xyz/") { name = "Nucleoid" } // Server GUI
+
+    maven(url = "https://jitpack.io") { name = "JitPack" } // XpressLib
 }
 
 dependencies {
@@ -22,11 +26,16 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
     modImplementation("com.cobblemon:fabric:${property("cobblemon_version")}")
 
-    // LuckPerms API
-    modImplementation ("me.lucko:fabric-permissions-api:${property("lucko_version")}")
-    compileOnly ("net.luckperms:api:${property("luckperms_version")}")
+    // Config and lang
+    implementation("com.github.XpressDevelopment:XpressLib:${property("xpresslib_version")}")
+    include("com.github.XpressDevelopment:XpressLib:${property("xpresslib_version")}") { isTransitive = false }
+
+    // Permissions
+    modImplementation("me.lucko:fabric-permissions-api:${property("lucko_version")}")
+    compileOnly("net.luckperms:api:${property("luckperms_version")}")
 
     // MiniMessage
     modImplementation(include("net.kyori:adventure-platform-fabric:${property("adventure_platform_version")}")!!)

@@ -3,10 +3,14 @@
   "id": "shinyreroll",
   "version": "${version}",
   "name": "ShinyReroll",
-  "description": "Adds a way to turn in your shinies and roll for a new one",
+  "description": "Lets players turn in a set of shiny Pokémon for a chance to roll a new random shiny.",
   "authors": [
     "GuitarXpress"
   ],
+  "contact": {
+    "repo": "https://github.com/XpressDevelopment/ShinyReroll",
+    "issues": "https://github.com/XpressDevelopment/ShinyReroll/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
@@ -17,7 +21,8 @@
   "depends": {
     "fabricloader": ">=0.16.2",
     "fabric": "*",
+    "fabric-language-kotlin": ">=1.13.6",
     "minecraft": "1.21.1",
-    "cobblemon": ">=1.7.0+1.21.1"
+    "cobblemon": ">=1.8.0+1.21.1"
   }
 }
