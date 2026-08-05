@@ -19,9 +19,9 @@ object RerollManager {
     data class RollState(
         val items: MutableList<ItemStack>,
         val win: Boolean,
+        val totalRolls: Int,
         var rollsLeft: Int,
         var elapsedTicks: Int = 0,
-        var delay: Float,
     )
 
     val shownItemList = listOf(
@@ -30,17 +30,22 @@ object RerollManager {
         CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack, CobblemonItems.POKE_BALL.defaultStack
     )
 
+    private const val MIN_DELAY_TICKS = 1.0f
+    private const val MAX_DELAY_TICKS = 14.0f
+
     private val rolls = mutableMapOf<UUID, RollState>()
 
     fun init(player: ServerPlayerEntity) {
         val win = Math.random() <= GeneralUtils.calculateCurrentShinyChance(player)
+        val totalRolls = rollCountFor(win)
 
-        rolls[player.uuid] = RollState(
+        val state = RollState(
             items = shownItemList.toMutableList(),
             win = win,
-            rollsLeft = rollCountFor(win),
-            delay = Random.nextDouble(0.6, 1.0).toFloat(),
+            totalRolls = totalRolls,
+            rollsLeft = totalRolls,
         )
+        rolls[player.uuid] = state
     }
 
     fun clear(player: ServerPlayerEntity) {
@@ -62,6 +67,12 @@ object RerollManager {
         }
     }
 
+    private fun delayFor(state: RollState): Float {
+        val progress = 1f - state.rollsLeft.toFloat() / state.totalRolls
+        val eased = progress * progress * progress
+        return MIN_DELAY_TICKS + (MAX_DELAY_TICKS - MIN_DELAY_TICKS) * eased
+    }
+
     fun updateRolls() {
         val server = ShinyReroll.serverInstance
 
@@ -72,11 +83,10 @@ object RerollManager {
                 return@forEach
             }
 
-            if (state.elapsedTicks >= state.delay && state.rollsLeft > 0) {
+            if (state.elapsedTicks >= delayFor(state) && state.rollsLeft > 0) {
                 doRoll(player, state)
                 state.rollsLeft--
                 state.elapsedTicks = 0
-                state.delay += Random.nextDouble(0.6, 1.0).toFloat()
             } else {
                 state.elapsedTicks++
             }
