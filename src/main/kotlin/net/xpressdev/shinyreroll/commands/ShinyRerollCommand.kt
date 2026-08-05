@@ -1,10 +1,9 @@
 package net.xpressdev.shinyreroll.commands
 
 import com.mojang.brigadier.Command
-import com.mojang.brigadier.arguments.StringArgumentType
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.minecraft.command.argument.EntityArgumentType
 import net.minecraft.server.command.CommandManager
-
 import net.minecraft.server.command.ServerCommandSource
 import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.config.Message
@@ -13,11 +12,10 @@ import net.xpressdev.shinyreroll.managers.PermissionManager
 import net.xpressdev.shinyreroll.managers.RerollManager
 import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.Messages
-import net.xpressdev.shinyreroll.utils.ServerUtils
 
-class ShinyRerollCommand {
+object ShinyRerollCommand {
 
-    init {
+    fun register() {
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             dispatcher.register(
                 CommandManager.literal("shinyreroll")
@@ -26,8 +24,10 @@ class ShinyRerollCommand {
                     )
                     .then(CommandManager.literal("open").requires { PermissionManager.canUseCommand(it) }
                         .executes(openReroll())
-                        .then(CommandManager.argument("player", StringArgumentType.string()).requires { PermissionManager.canUseOtherCommand(it) }
-                            .executes(openRerollOther())
+                        .then(
+                            CommandManager.argument("player", EntityArgumentType.player())
+                                .requires { PermissionManager.canUseOtherCommand(it) }
+                                .executes(openRerollOther())
                         )
                     )
             )
@@ -44,11 +44,11 @@ class ShinyRerollCommand {
 
     private fun openReroll(): Command<ServerCommandSource> {
         return Command { ctx ->
-            val player = ctx.source.player ?: return@Command 1
+            val player = ctx.source.player ?: return@Command 0
 
             if (RerollManager.isRolling(player)) {
                 Messages.error(ctx.source, Message.COMMAND_ROLL_IN_PROGRESS)
-                return@Command 1
+                return@Command 0
             }
 
             SelectionManager.clear(player)
@@ -59,18 +59,11 @@ class ShinyRerollCommand {
 
     private fun openRerollOther(): Command<ServerCommandSource> {
         return Command { ctx ->
-
-            val playerName = StringArgumentType.getString(ctx, "player")
-            val player = ServerUtils.getPlayerByName(playerName)
-
-            if (player == null) {
-                Messages.error(ctx.source, Message.COMMAND_PLAYER_NOT_FOUND)
-                return@Command 1
-            }
+            val player = EntityArgumentType.getPlayer(ctx, "player")
 
             if (RerollManager.isRolling(player)) {
                 Messages.error(ctx.source, Message.COMMAND_ROLL_IN_PROGRESS)
-                return@Command 1
+                return@Command 0
             }
 
             SelectionManager.clear(player)

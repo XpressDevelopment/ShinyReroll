@@ -1,59 +1,62 @@
 package net.xpressdev.shinyreroll.utils
 
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 import net.minecraft.text.Text
+import net.xpressdev.shinyreroll.config.Message
 
 object PokemonUtils {
 
-    fun getPokemonItem(pokemon: Pokemon): ItemStack {
+    fun getPokemonItem(pokemon: Pokemon): ItemStack = buildItem(PokemonItem.from(pokemon, 1), pokemon)
+
+    fun getSelectedPokemonItem(pokemon: Pokemon): ItemStack =
+        buildItem(CobblemonItems.VERDANT_BALL.defaultStack, pokemon)
+
+    private fun buildItem(base: ItemStack, pokemon: Pokemon): ItemStack {
         val ivs = pokemon.ivs
         val evs = pokemon.evs
-        return ItemBuilder(PokemonItem.from(pokemon, 1))
+
+        return ItemBuilder(base)
             .hideAdditional()
             .addLore(
-                listOf<Text>(
-                    Text.literal("§bLevel: §f${pokemon.level}"),
-                    Text.literal(
-                        "§eNature: §f${
-                            pokemon.nature.displayName.replace(
-                                "cobblemon.nature.",
-                                ""
-                            ).replaceFirstChar { it.uppercase() }
-                        }"),
-                    Text.literal(
-                        "§6Ability: §f${
-                            pokemon.ability.displayName.replace(
-                                "cobblemon.ability.",
-                                ""
-                            ).replaceFirstChar { it.uppercase() }
-                        }"
+                listOf(
+                    Messages.text(Message.POKEMON_LORE_LEVEL, "level" to "${pokemon.level}"),
+                    Messages.text(
+                        Message.POKEMON_LORE_NATURE,
+                        "nature" to displayName(pokemon.nature.displayName, "cobblemon.nature."),
                     ),
-                    Text.literal("§dIVs:"),
-                    Text.literal(
-                        " §cHP: §f${ivs.getOrDefault(Stats.HP)}  " +
-                                "§9Atk: §f${ivs.getOrDefault(Stats.ATTACK)}  " +
-                                "§7Def: §f${ivs.getOrDefault(Stats.DEFENCE)}"
+                    Messages.text(
+                        Message.POKEMON_LORE_ABILITY,
+                        "ability" to displayName(pokemon.ability.displayName, "cobblemon.ability."),
                     ),
-                    Text.literal(
-                        " §bSpAtk: §f${ivs.getOrDefault(Stats.SPECIAL_ATTACK)}  " +
-                                "§eSpDef: §f${ivs.getOrDefault(Stats.SPECIAL_DEFENCE)}  " +
-                                "§aSpd: §f${ivs.getOrDefault(Stats.SPEED)}"
+                    Messages.text(Message.POKEMON_LORE_IVS_HEADER),
+                    Messages.text(
+                        Message.POKEMON_LORE_IVS_LINE_1,
+                        "hp" to "${ivs.getOrDefault(Stats.HP)}",
+                        "atk" to "${ivs.getOrDefault(Stats.ATTACK)}",
+                        "def" to "${ivs.getOrDefault(Stats.DEFENCE)}",
                     ),
-                    Text.literal("§3EVs:"),
-                    Text.literal(
-                        " §cHP: §f${evs.getOrDefault(Stats.HP)}  " +
-                                "§9Atk: §f${evs.getOrDefault(Stats.ATTACK)}  " +
-                                "§7Def: §f${evs.getOrDefault(Stats.DEFENCE)}"
+                    Messages.text(
+                        Message.POKEMON_LORE_IVS_LINE_2,
+                        "spatk" to "${ivs.getOrDefault(Stats.SPECIAL_ATTACK)}",
+                        "spdef" to "${ivs.getOrDefault(Stats.SPECIAL_DEFENCE)}",
+                        "spd" to "${ivs.getOrDefault(Stats.SPEED)}",
                     ),
-                    Text.literal(
-                        " §bSpAtk: §f${evs.getOrDefault(Stats.SPECIAL_ATTACK)}  " +
-                                "§eSpDef: §f${evs.getOrDefault(Stats.SPECIAL_DEFENCE)}  " +
-                                "§aSpd: §f${evs.getOrDefault(Stats.SPEED)}"
+                    Messages.text(Message.POKEMON_LORE_EVS_HEADER),
+                    Messages.text(
+                        Message.POKEMON_LORE_EVS_LINE_1,
+                        "hp" to "${evs.getOrDefault(Stats.HP)}",
+                        "atk" to "${evs.getOrDefault(Stats.ATTACK)}",
+                        "def" to "${evs.getOrDefault(Stats.DEFENCE)}",
+                    ),
+                    Messages.text(
+                        Message.POKEMON_LORE_EVS_LINE_2,
+                        "spatk" to "${evs.getOrDefault(Stats.SPECIAL_ATTACK)}",
+                        "spdef" to "${evs.getOrDefault(Stats.SPECIAL_DEFENCE)}",
+                        "spd" to "${evs.getOrDefault(Stats.SPEED)}",
                     ),
                 )
             )
@@ -61,55 +64,7 @@ object PokemonUtils {
             .build()
     }
 
-    fun getSelectedPokemonItem(pokemon: Pokemon): ItemStack {
-        val ivs = pokemon.ivs
-        val evs = pokemon.evs
-        return ItemBuilder(CobblemonItems.VERDANT_BALL.defaultStack)
-            .hideAdditional()
-            .addLore(
-                listOf<Text>(
-                    Text.literal("§bLevel: §f${pokemon.level}"),
-                    Text.literal(
-                        "§eNature: §f${
-                            pokemon.nature.displayName.replace(
-                                "cobblemon.nature.",
-                                ""
-                            ).replaceFirstChar { it.uppercase() }
-                        }"),
-                    Text.literal(
-                        "§6Ability: §f${
-                            pokemon.ability.displayName.replace(
-                                "cobblemon.ability.",
-                                ""
-                            ).replaceFirstChar { it.uppercase() }
-                        }"
-                    ),
-                    Text.literal("§dIVs:"),
-                    Text.literal(
-                        " §cHP: §f${ivs.getOrDefault(Stats.HP)}  " +
-                                "§9Atk: §f${ivs.getOrDefault(Stats.ATTACK)}  " +
-                                "§7Def: §f${ivs.getOrDefault(Stats.DEFENCE)}"
-                    ),
-                    Text.literal(
-                        " §bSpAtk: §f${ivs.getOrDefault(Stats.SPECIAL_ATTACK)}  " +
-                                "§eSpDef: §f${ivs.getOrDefault(Stats.SPECIAL_DEFENCE)}  " +
-                                "§aSpd: §f${ivs.getOrDefault(Stats.SPEED)}"
-                    ),
-                    Text.literal("§3EVs:"),
-                    Text.literal(
-                        " §cHP: §f${evs.getOrDefault(Stats.HP)}  " +
-                                "§9Atk: §f${evs.getOrDefault(Stats.ATTACK)}  " +
-                                "§7Def: §f${evs.getOrDefault(Stats.DEFENCE)}"
-                    ),
-                    Text.literal(
-                        " §bSpAtk: §f${evs.getOrDefault(Stats.SPECIAL_ATTACK)}  " +
-                                "§eSpDef: §f${evs.getOrDefault(Stats.SPECIAL_DEFENCE)}  " +
-                                "§aSpd: §f${evs.getOrDefault(Stats.SPEED)}"
-                    ),
-                )
-            )
-            .setCustomName(pokemon.nickname ?: Text.literal(pokemon.species.name))
-            .build()
-    }
+    private fun displayName(raw: String, prefix: String): String =
+        raw.replace(prefix, "").replaceFirstChar { it.uppercase() }
 
 }

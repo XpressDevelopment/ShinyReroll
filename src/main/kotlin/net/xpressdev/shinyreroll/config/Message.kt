@@ -5,7 +5,6 @@ import net.xpressdev.xpresslib.lang.XpressMessage
 enum class Message(override val key: String, override val default: String) : XpressMessage {
 
     COMMAND_CONFIG_RELOADED("command.config_reloaded", "<green>Config reloaded!"),
-    COMMAND_PLAYER_NOT_FOUND("command.player_not_found", "<red>Player not found!"),
     COMMAND_ROLL_IN_PROGRESS("command.roll_in_progress", "<red>You already have a reroll in progress!"),
 
     GUI_PARTY_PC_SELECT_TITLE("gui.party_pc_select.title", "Shiny Reroll"),

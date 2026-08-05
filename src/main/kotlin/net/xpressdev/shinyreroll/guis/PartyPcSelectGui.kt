@@ -3,8 +3,6 @@ package net.xpressdev.shinyreroll.guis
 import com.cobblemon.mod.common.CobblemonItems
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
-import net.minecraft.item.Items
-import net.minecraft.item.Items.BLACK_STAINED_GLASS_PANE
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.Message
@@ -17,12 +15,7 @@ object PartyPcSelectGui {
         gui.setTitle(Messages.text(Message.GUI_PARTY_PC_SELECT_TITLE))
 
         for (i in 0 until gui.size) {
-            gui.setSlot(
-                i,
-                GuiElementBuilder.from(BLACK_STAINED_GLASS_PANE.defaultStack)
-                    .hideTooltip()
-                    .build()
-            )
+            gui.setSlot(i, GuiItems.blackFiller().build())
         }
 
         gui.setSlot(
@@ -48,8 +41,7 @@ object PartyPcSelectGui {
 
         gui.setSlot(
             15,
-            GuiElementBuilder(Items.PLAYER_HEAD)
-                .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2VhODYzYWY4ZTIwOGNjNzBkZjhlZmM4MzU5YzZhY2MwZGVkMzBkY2M1ODhiN2IwNGRjZGU1NWRjNjEzMmY1YyJ9fX0=")
+            GuiItems.starHead()
                 .setName(Messages.text(Message.GUI_PARTY_PC_SELECT_REROLL))
                 .glow(true)
                 .setCallback { _, _, _ ->

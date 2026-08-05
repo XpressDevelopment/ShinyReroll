@@ -19,21 +19,13 @@ object PartySelectGui {
         gui.setTitle(Messages.text(Message.GUI_PARTY_SELECT_TITLE))
 
         for (i in 0 until gui.size) {
-            gui.setSlot(
-                i,
-                GuiElementBuilder.from(BLACK_STAINED_GLASS_PANE.defaultStack)
-                    .hideTooltip()
-                    .build()
-            )
+            gui.setSlot(i, GuiItems.blackFiller().build())
         }
 
         gui.setSlot(
             10,
-            GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
-                null,
-                null
-            ).setName(Messages.text(Message.GUI_CONFIRM))
+            GuiItems.confirmHead()
+                .setName(Messages.text(Message.GUI_CONFIRM))
                 .setCallback { _, _, _ ->
                     PartyPcSelectGui.openGui(player)
                 }

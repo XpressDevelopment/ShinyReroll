@@ -35,7 +35,6 @@ dependencies {
 
     // Permissions
     modImplementation("me.lucko:fabric-permissions-api:${property("lucko_version")}")
-    compileOnly("net.luckperms:api:${property("luckperms_version")}")
 
     // MiniMessage
     modImplementation(include("net.kyori:adventure-platform-fabric:${property("adventure_platform_version")}")!!)

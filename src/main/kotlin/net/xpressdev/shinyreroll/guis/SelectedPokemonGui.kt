@@ -3,7 +3,6 @@ package net.xpressdev.shinyreroll.guis
 import com.cobblemon.mod.common.pokemon.Pokemon
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
-import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.ConfigStore
@@ -23,23 +22,14 @@ object SelectedPokemonGui {
 
         for (i in 0 until gui.size) {
             if (i in 0..5 || i in 9..14 || i in 18..23 || i in 27..32 || i in 36..41) {
-                gui.setSlot(
-                    i,
-                    GuiElementBuilder.from(GRAY_STAINED_GLASS_PANE.defaultStack)
-                        .setName(Messages.text(Message.GUI_EMPTY))
-                        .build()
-                )
+                gui.setSlot(i, GuiItems.grayFiller(Messages.text(Message.GUI_EMPTY)).build())
             } else {
-                gui.setSlot(
-                    i,
-                    GuiElementBuilder.from(BLACK_STAINED_GLASS_PANE.defaultStack)
-                        .hideTooltip()
-                        .build()
-                )
+                gui.setSlot(i, GuiItems.blackFiller().build())
             }
         }
 
         val selectedPokemon = SelectionManager.resolve(player)
+        val lastPage = (selectedPokemon.size - 1).coerceAtLeast(0) / 30
         for (i in 0 until 30) {
             if (i + sectionNum * 30 >= selectedPokemon.size)
                 break
@@ -58,30 +48,22 @@ object SelectedPokemonGui {
 
         gui.setSlot(
             42,
-            GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzdhZWU5YTc1YmYwZGY3ODk3MTgzMDE1Y2NhMGIyYTdkNzU1YzYzMzg4ZmYwMTc1MmQ1ZjQ0MTlmYzY0NSJ9fX0=",
-                null,
-                null
-            )
+            GuiItems.previousHead()
                 .setName(Messages.text(Message.GUI_PREVIOUS))
                 .setCallback { _, _, _ ->
                     if (sectionNum > 0)
                         openGui(player, sectionNum - 1)
                     else
-                        openGui(player, floor(selectedPokemon.size * 1.0 / 30).toInt())
+                        openGui(player, lastPage)
                 }
                 .build()
         )
         gui.setSlot(
             44,
-            GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjgyYWQxYjljYjRkZDIxMjU5YzBkNzVhYTMxNWZmMzg5YzNjZWY3NTJiZTM5NDkzMzgxNjRiYWM4NGE5NmUifX19",
-                null,
-                null
-            )
+            GuiItems.nextHead()
                 .setName(Messages.text(Message.GUI_NEXT))
                 .setCallback { _, _, _ ->
-                    if (sectionNum < floor(selectedPokemon.size * 1.0 / 30).toInt())
+                    if (sectionNum < lastPage)
                         openGui(player, sectionNum + 1)
                     else
                         openGui(player, 0)
@@ -92,11 +74,8 @@ object SelectedPokemonGui {
         if (!GeneralUtils.isOverLimit(player))
             gui.setSlot(
                 24,
-                GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTc5YTVjOTVlZTE3YWJmZWY0NWM4ZGMyMjQxODk5NjQ5NDRkNTYwZjE5YTQ0ZjE5ZjhhNDZhZWYzZmVlNDc1NiJ9fX0=",
-                    null,
-                    null
-                ).setName(Messages.text(Message.GUI_CONFIRM))
+                GuiItems.confirmHead()
+                    .setName(Messages.text(Message.GUI_CONFIRM))
                     .setCallback { _, _, _ ->
                         if (SelectionManager.resolve(player).isNotEmpty())
                             ConfirmationGui.openGui(player)
@@ -108,11 +87,8 @@ object SelectedPokemonGui {
         else
             gui.setSlot(
                 24,
-                GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                    "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmYwNGIyOTJhZDk0OGMwZTlmMGQzM2M2NGYxMzFmMzJlM2M1MTg4NDU2Zjc3ODc0NWEwMGYyYjRiNWFkMDM1OSJ9fX0=",
-                    null,
-                    null
-                ).setName(Messages.text(Message.GUI_SELECTED_TOO_MANY_NAME))
+                GuiItems.warningHead()
+                    .setName(Messages.text(Message.GUI_SELECTED_TOO_MANY_NAME))
                     .addLoreLine(
                         Messages.text(
                             Message.GUI_SELECTED_TOO_MANY_LORE,
@@ -124,11 +100,8 @@ object SelectedPokemonGui {
 
         gui.setSlot(
             26,
-            GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjc1NDgzNjJhMjRjMGZhODQ1M2U0ZDkzZTY4YzU5NjlkZGJkZTU3YmY2NjY2YzAzMTljMWVkMWU4NGQ4OTA2NSJ9fX0=",
-                null,
-                null
-            ).setName(Messages.text(Message.GUI_CANCEL))
+            GuiItems.cancelHead()
+                .setName(Messages.text(Message.GUI_CANCEL))
                 .setCallback { _, _, _ ->
                     PartyPcSelectGui.openGui(player)
                 }
@@ -137,11 +110,8 @@ object SelectedPokemonGui {
 
         gui.setSlot(
             7,
-            GuiElementBuilder(PLAYER_HEAD).setSkullOwner(
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDAxYWZlOTczYzU0ODJmZGM3MWU2YWExMDY5ODgzM2M3OWM0MzdmMjEzMDhlYTlhMWEwOTU3NDZlYzI3NGEwZiJ9fX0=",
-                null,
-                null
-            ).setName(Messages.text(Message.GUI_INFO_NAME))
+            GuiItems.infoHead()
+                .setName(Messages.text(Message.GUI_INFO_NAME))
                 .addLoreLine(
                     Messages.text(Message.GUI_INFO_CURRENT_CHANCE, "chance" to GeneralUtils.formatShinyChance(player)),
                 )
