@@ -10,7 +10,7 @@ import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.config.Message
 import net.xpressdev.shinyreroll.guis.PartyPcSelectGui
 import net.xpressdev.shinyreroll.managers.PermissionManager
-import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.ServerUtils
 
@@ -44,7 +44,7 @@ class ShinyRerollCommand {
     private fun openReroll(): Command<ServerCommandSource> {
         return Command { ctx ->
             if (ctx.source.player == null) return@Command 1
-            PokemonSelectionManager.init(ctx.source.player!!)
+            SelectionManager.clear(ctx.source.player!!)
             PartyPcSelectGui.openGui(ctx.source.player!!)
             1
         }
@@ -61,7 +61,7 @@ class ShinyRerollCommand {
                 return@Command 1
             }
 
-            PokemonSelectionManager.init(player)
+            SelectionManager.clear(player)
             PartyPcSelectGui.openGui(player)
             1
         }

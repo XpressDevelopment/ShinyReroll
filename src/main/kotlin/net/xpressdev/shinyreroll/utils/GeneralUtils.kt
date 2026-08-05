@@ -6,12 +6,12 @@ import com.cobblemon.mod.common.util.party
 import com.cobblemon.mod.common.util.pc
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.ConfigStore
-import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 
 object GeneralUtils {
 
     fun calculateCurrentShinyChance(player: ServerPlayerEntity): Double {
-        return PokemonSelectionManager.getSelectedPokemon(player).size * ConfigStore.config.reroll.chanceFraction
+        return SelectionManager.resolve(player).size * ConfigStore.config.reroll.chanceFraction
     }
 
     fun formatShinyChance(player: ServerPlayerEntity): String {
@@ -27,7 +27,7 @@ object GeneralUtils {
     }
 
     fun isOverLimit(player: ServerPlayerEntity): Boolean {
-        return PokemonSelectionManager.getSelectedPokemon(player).size > ConfigStore.config.reroll.maxPokemonSelected
+        return SelectionManager.resolve(player).size > ConfigStore.config.reroll.maxPokemonSelected
     }
 
     fun getRandomPokemon(): Pokemon {
@@ -62,28 +62,20 @@ object GeneralUtils {
     }
 
     fun checkSelectedPokemon(player: ServerPlayerEntity): Boolean {
-        return PokemonSelectionManager.getSelectedPokemon(player).all { it.shiny }
+        return SelectionManager.resolve(player).all { it.shiny }
     }
 
     fun removeSelectedPokemonFromPlayer(player: ServerPlayerEntity) {
-        val pm = PokemonSelectionManager
-        val selectedPartyPokemon = pm.getSelectedPartyPokemon(player)
-        val selectedPcPokemon = pm.getSelectedPcPokemon(player)
-
         val party = player.party()
         val pc = player.pc()
 
-        selectedPartyPokemon.forEach {
-            party.remove(party.get(it)!!)
-        }
-
-        selectedPcPokemon.forEach {
-            pc.remove(pc[it]!!)
+        SelectionManager.resolve(player).forEach { pokemon ->
+            party.remove(pokemon) || pc.remove(pokemon)
         }
     }
 
     private fun giveRolledPokemon(player: ServerPlayerEntity): Pokemon {
-        PokemonSelectionManager.clear(player)
+        SelectionManager.clear(player)
 
         val pokemon = getRandomPokemon()
         player.party().add(pokemon)

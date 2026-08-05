@@ -8,7 +8,7 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.ConfigStore
 import net.xpressdev.shinyreroll.config.Message
-import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.GeneralUtils
 import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
@@ -39,7 +39,7 @@ object SelectedPokemonGui {
             }
         }
 
-        val selectedPokemon = PokemonSelectionManager.getSelectedPokemon(player)
+        val selectedPokemon = SelectionManager.resolve(player)
         for (i in 0 until 30) {
             if (i + sectionNum * 30 >= selectedPokemon.size)
                 break
@@ -49,8 +49,7 @@ object SelectedPokemonGui {
             gui.setSlot(
                 (row * 9).toInt() + index,
                 GuiElementBuilder.from(PokemonUtils.getPokemonItem(pokemon)).setCallback { _, _, _ ->
-                    if (PokemonSelectionManager.isPokemonSelected(player, pokemon))
-                        PokemonSelectionManager.removeSelectedPokemon(player, pokemon)
+                    SelectionManager.toggle(player, pokemon)
                     openGui(player, sectionNum)
                 }
                     .build()
@@ -99,7 +98,7 @@ object SelectedPokemonGui {
                     null
                 ).setName(Messages.text(Message.GUI_CONFIRM))
                     .setCallback { _, _, _ ->
-                        if (PokemonSelectionManager.getSelectedPokemon(player).size > 0)
+                        if (SelectionManager.resolve(player).isNotEmpty())
                             ConfirmationGui.openGui(player)
                         else
                             player.sendMessage(Messages.text(Message.GUI_SELECTED_MUST_SELECT_ONE))

@@ -1,7 +1,6 @@
 package net.xpressdev.shinyreroll.guis
 
 import com.cobblemon.mod.common.CobblemonItems
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.party
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import eu.pb4.sgui.api.gui.SimpleGui
@@ -9,7 +8,7 @@ import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.Message
-import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
 
@@ -60,7 +59,7 @@ object PartySelectGui {
                 val pokemonElement =
                     if (pokemon.shiny)
                         GuiElementBuilder.from(
-                            if (PokemonSelectionManager.isPartyPokemonSelected(player, it))
+                            if (SelectionManager.isSelected(player, pokemon))
                                 PokemonUtils.getSelectedPokemonItem(pokemon)
                             else
                                 PokemonUtils.getPokemonItem(pokemon)
@@ -77,10 +76,7 @@ object PartySelectGui {
                             if (!pokemon.shiny)
                                 return@setCallback
 
-                            if (PokemonSelectionManager.isPartyPokemonSelected(player, it))
-                                PokemonSelectionManager.deselectPartyPokemon(player, it)
-                            else
-                                PokemonSelectionManager.selectPartyPokemon(player, it)
+                            SelectionManager.toggle(player, pokemon)
                             openGui(player)
                         }
                         .build()

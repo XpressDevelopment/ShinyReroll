@@ -1,7 +1,6 @@
 package net.xpressdev.shinyreroll.guis
 
 import com.cobblemon.mod.common.CobblemonItems
-import com.cobblemon.mod.common.api.storage.pc.PCPosition
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.pc
 import eu.pb4.sgui.api.elements.GuiElementBuilder
@@ -10,7 +9,7 @@ import net.minecraft.item.Items.*
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 import net.xpressdev.shinyreroll.config.Message
-import net.xpressdev.shinyreroll.managers.PokemonSelectionManager
+import net.xpressdev.shinyreroll.managers.SelectionManager
 import net.xpressdev.shinyreroll.utils.Messages
 import net.xpressdev.shinyreroll.utils.PokemonUtils
 import kotlin.math.floor
@@ -46,7 +45,7 @@ object PcSelectGui {
             val row = floor(i.toDouble() / 6.0)
             val index = i % 6
             if (pokemon != null) {
-                var item = if (PokemonSelectionManager.isPcPokemonSelected(player, PCPosition(boxNum, i)))
+                var item = if (SelectionManager.isSelected(player, pokemon))
                     GuiElementBuilder.from(PokemonUtils.getSelectedPokemonItem(pokemon))
                 else
                     GuiElementBuilder.from(PokemonUtils.getPokemonItem(pokemon))
@@ -61,10 +60,7 @@ object PcSelectGui {
                             if (!pokemon.shiny)
                                 return@setCallback
 
-                            if (PokemonSelectionManager.isPcPokemonSelected(player, PCPosition(boxNum, i)))
-                                PokemonSelectionManager.deselectPcPokemon(player, PCPosition(boxNum, i))
-                            else
-                                PokemonSelectionManager.selectPcPokemon(player, PCPosition(boxNum, i))
+                            SelectionManager.toggle(player, pokemon)
                             openGui(player, boxNum)
                         }.build()
                 )
